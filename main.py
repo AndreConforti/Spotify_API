@@ -7,6 +7,35 @@ from datetime import datetime
 import datetime
 import sqlite3
 
+
+def check_if_valid_data(df: pd.DataFrame) -> bool:
+
+    # Verifica se o dataframe está vazio
+    if df.empty:
+        print("No songs downloaded. Finish execution")
+        return False
+
+    # Verifica a chave primária
+    if pd.Series(df["played_at"]).is_unique:
+        pass
+    else:
+        raise Exception("Primary Key Check is violated")
+
+    # Verifica valores nulos
+    if df.isnull().values.any():
+        raise Exception("Null valued found")
+
+    # Verifica se os horários das músicas tocadas são da data de ontem
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    timestamps = df["timestamp"].tolist()
+    for timestamp in timestamps:
+        if datetime.datetime.strptime(timestamp, "%Y-%m-%d") != yesterday:
+            raise Exception("At least one of the returned songs does not come from within the last 24 hours")
+
+    return True
+
 # API do Spotify = https://developer.spotify.com/console/get-recently-played/?limit=&after=&before=
 
 DATABASE_LOCATION = "sqlite:///my_layed_tracks.sqlite"
