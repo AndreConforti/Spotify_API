@@ -1,4 +1,5 @@
 # Spotify_API
+---------------------
 
 *Vamos costruir um pipeline de dados utilizando os dados da API do Spotify.
 *Faremos o processo de ETL completo, desde a extração dos dados, transformação e carregamento dos dados para um banco de dados.
