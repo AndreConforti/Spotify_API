@@ -38,9 +38,9 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
 
 # API do Spotify = https://developer.spotify.com/console/get-recently-played/?limit=&after=&before=
 
-DATABASE_LOCATION = "sqlite:///my_layed_tracks.sqlite"
+DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
 USER_ID = "2274c5vzd3p4pvzwu7mkup33q"
-TOKEN = "BQB-zBqa_eRyBFJAI2z1rNCNc1LGFnTWK1OD2xT0MeEZoxvgq0w6jfwF0Y4EJjvlYtCGf_QffOPN5ZAiXGtKm8hB_w89X037Nd_MA6fkmJWSVmqmqtG84Y9LDxYxqVwjYpNQSEdVK-QYbyreJJ0Aedo0fFGwnXh1X98nbbxIAuDGMx4pvVhBX5S5B086wO_QLoa7S-tu"
+TOKEN = "BQAKisqqIuhNgDZqVAp8RYUlXYNC7K_dqVlJwdJRCOGu7ZhrDjQjQzbxqxFsC8S_fL-kZzrhx77a4bvythv_Ox3mxvPWv4HwKV7r63Bty6GfPCtBo9Y1d9Lmb7gJY1zih7V3LyGkWr1JVXOoku66xVWtYYcjJfqLoVXHdeq1T9FmITyYTDBmRejSC6Ptbeo9Kobs5wiH"
 
 if __name__ == "__main__":
 
@@ -80,4 +80,33 @@ if __name__ == "__main__":
 
     song_df = pd.DataFrame(song_dict, columns=["song_name", "artist_name", "played_at", "timestamp"])
 
-    print(song_df)
+    # Validação
+    if check_if_valid_data(song_df):
+        print("Data valid, proceed to Load stage")
+
+    # Carregamento
+    engine = sqlalchemy.create_engine(DATABASE_LOCATION)
+    conn = sqlite3.connect('my_played_tracks.sqlite')
+    cursor = conn.cursor()
+
+    sql_query = """
+    CREATE TABLE IF NOT EXISTS my_played_tracks(
+        song_name VARCHAR(200),
+        artis_name VARCHAR(200),
+        played_at VARCHAR(200),
+        timestamp VARCHAR(200),
+        CONSTRAINT primary_key_constraint PRIMARY KEY (played_at)
+    )
+    """
+
+    cursor.execute(sql_query)
+    print("Opened database successfully")
+
+    try:
+        song_df.to_sql("my_played_tracks", engine, index=False, if_exists='append')
+    except:
+        print("Data already exists in the database")
+
+    conn.close()
+    print("Close database successfully")
+
